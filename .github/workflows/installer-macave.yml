@@ -1,0 +1,88 @@
+name: Installer Ma Cave et créer l’APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/installer-macave.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  installer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Installer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Extraire les sources
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+
+          archive = Path("Ma-Cave-Sources-GitHub.zip")
+          if not archive.exists():
+              raise SystemExit("Ajoute d’abord Ma-Cave-Sources-GitHub.zip à la racine du dépôt.")
+
+          dossiers = {"app", "scripts", "tests"}
+          fichiers = {
+              "README.md", "TESTS.md", "build.py",
+              "ocr-dependencies.json", ".gitignore"
+          }
+
+          with ZipFile(archive) as z:
+              for item in z.infolist():
+                  p = Path(item.filename)
+                  if p.is_absolute() or ".." in p.parts:
+                      raise SystemExit("Chemin invalide dans l’archive.")
+                  if item.is_dir():
+                      continue
+                  if p.parts[0] in dossiers or str(p) in fichiers:
+                      p.parent.mkdir(parents=True, exist_ok=True)
+                      p.write_bytes(z.read(item))
+          PY
+
+      - name: Enregistrer les sources dans GitHub
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app scripts tests README.md TESTS.md build.py ocr-dependencies.json .gitignore
+          if ! git diff --cached --quiet; then
+            git commit -m "Installer les sources de Ma Cave"
+            git push
+          fi
+
+      - name: Installer Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Installer Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Vérifier le stock et les profils
+        run: |
+          node tests/model.test.js
+          node tests/profile.test.js
+
+      - name: Construire l’application Android
+        run: python3 build.py
+
+      - name: Fournir l’APK téléchargeable
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ma-Cave-APK
+          path: out/Ma-Cave-Test-0.1.apk
+          if-no-files-found: error
