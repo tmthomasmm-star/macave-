@@ -1,0 +1,17 @@
+[
+  [
+    "tesseract.tgz",
+    "https://registry.npmjs.org/tesseract.js/-/tesseract.js-6.0.1.tgz",
+    "4a208f2560a527ea9fc339ba2fdf125c13bca6638c194a149379601a1418d0ed"
+  ],
+  [
+    "core.tgz",
+    "https://registry.npmjs.org/tesseract.js-core/-/tesseract.js-core-6.0.0.tgz",
+    "197b53b6bc42b7270c99b079e438992096d71a2b9b8237c6349491bd22fbd5a0"
+  ],
+  [
+    "fra.traineddata.gz",
+    "https://tessdata.projectnaptha.com/4.0.0_fast/fra.traineddata.gz",
+    "9800c70d1db21689e1ee91b5c81fe4c822120fa92cf5f0dab0d2b81b616fd468"
+  ]
+]

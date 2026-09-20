@@ -1,0 +1,6 @@
+const assert=require('node:assert/strict'),M=require('../app/assets/model');
+const s=M.fresh(),c=M.cells(2,2,6);s.racks.push({id:'r',name:'Meuble',room:'Cave',photos:[],cells:c});s.wines.push({id:'w',name:'Test',price:null,allocations:[{cell:c[0].id,qty:6}]});M.validate(s);
+M.move(s,'w',c[0].id,c[1].id,2,'Déplacement');assert.equal(M.qty(s.wines[0]),6);assert.equal(s.wines[0].allocations[0].qty,4);
+M.move(s,'w',c[1].id,null,1,'Bue');assert.equal(M.qty(s.wines[0]),5);assert.throws(()=>M.move(s,'w',c[1].id,null,2,'Bue'),/Stock insuffisant/);assert.equal(M.qty(s.wines[0]),5);
+M.move(s,'w',null,'unplaced',3,'Ajout');assert.equal(M.qty(s.wines[0]),8);assert.throws(()=>M.move(s,'w',null,'unplaced',-2,'Ajout'));assert.throws(()=>M.move(s,'w',null,'unplaced',1.5,'Ajout'));M.validate(s);
+let backup=JSON.parse(JSON.stringify(s));M.validate(backup);assert.deepEqual(backup,s);backup.wines[0].allocations[0].cell='missing';assert.throws(()=>M.validate(backup));backup=JSON.parse(JSON.stringify(s));backup.wines[0].price=-2;assert.throws(()=>M.validate(backup));backup=JSON.parse(JSON.stringify(s));backup.racks[0].cells[0].w=9;assert.throws(()=>M.validate(backup));console.log('PASS: déplacements, retraits, stock négatif interdit, quantités entières, sauvegarde, validation import.');

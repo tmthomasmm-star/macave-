@@ -1,0 +1,13 @@
+/tools/
+/build/
+/out/
+/app/assets/ocr/
+/node_modules/
+/tests/backup.json
+__pycache__/
+*.p12
+*.jks
+*.keystore
+*.log
+.env
+.env.*
